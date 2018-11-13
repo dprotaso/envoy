@@ -590,3 +590,47 @@ def _is_linux_ppc(ctxt):
         return False
     res = ctxt.execute(["uname", "-m"])
     return "ppc" in res.stdout
+
+def _deps_printer_impl(ctx):
+    deps = []
+
+    for location in REPOSITORY_LOCATIONS.items():
+      dep = {
+        "identifier": location[0],
+        "git-repo": location[1].get("git_repo"),
+        "git-sha": location[1].get("git_sha"),
+        "file-sha256": location[1].get("sha256"),
+        "file-url": location[1].get("urls")[0],
+      }
+
+      deps.append(dep)
+
+
+# TODO
+#    for target in TARGET_RECIPES.items():
+#      deps.append({
+#          "identifier": target[0],
+#      })
+
+    jsonfile = ctx.actions.declare_file(ctx.label.name + ".json")
+
+    ctx.actions.write(
+        output = jsonfile,
+        content = struct(dependencies=deps).to_json(),
+    )
+
+    ctx.actions.write(
+        output = ctx.outputs.executable,
+        content = "cat {}".format(jsonfile.short_path),
+        is_executable = True,
+    )
+
+    return [DefaultInfo(
+      runfiles = ctx.runfiles(files = [jsonfile])
+    )]
+
+deps_printer = rule(
+    implementation = _deps_printer_impl,
+    executable = True
+)
+

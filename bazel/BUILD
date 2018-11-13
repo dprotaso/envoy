@@ -128,3 +128,9 @@ config_setting(
     name = "force_libcpp",
     values = {"define": "force_libcpp=enabled"},
 )
+
+load("//bazel:repositories.bzl", "deps_printer")
+
+deps_printer(
+    name = "print_dependencies"
+)

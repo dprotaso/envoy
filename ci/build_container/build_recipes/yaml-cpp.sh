@@ -2,17 +2,12 @@
 
 set -e
 
-# Pin to this commit to pick up fix for building on Visual Studio 15.8
-COMMIT=0f9a586ca1dc29c2ecb8dd715a315b93e3f40f79 # 2018-06-30
-SHA256=53dcffd55f3433b379fcc694f45c54898711c0e29159a7bd02e82a3e0253bac3
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "${SCRIPT_DIR}/versions.sh"
 
-curl https://github.com/jbeder/yaml-cpp/archive/"$COMMIT".tar.gz -sLo yaml-cpp-"$COMMIT".tar.gz \
-  && echo "$SHA256" yaml-cpp-"$COMMIT".tar.gz | sha256sum --check
-tar xf yaml-cpp-"$COMMIT".tar.gz
-cd yaml-cpp-"$COMMIT"
+stage_source YAMLCPP
 
-mkdir build
-cd build
+mkdir build; cd build
 
 build_type=RelWithDebInfo
 if [[ "${OS}" == "Windows_NT" ]]; then
@@ -24,7 +19,8 @@ if [[ "${OS}" == "Windows_NT" ]]; then
   build_type=Debug
 fi
 
-cmake -G "Ninja" -DCMAKE_INSTALL_PREFIX:PATH="$THIRDPARTY_BUILD" \
+cmake -G "Ninja" \
+  -DCMAKE_INSTALL_PREFIX:PATH="$THIRDPARTY_BUILD" \
   -DCMAKE_CXX_FLAGS:STRING="${CXXFLAGS} ${CPPFLAGS}" \
   -DCMAKE_C_FLAGS:STRING="${CFLAGS} ${CPPFLAGS}" \
   -DYAML_CPP_BUILD_TESTS=off \

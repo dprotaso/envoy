@@ -2,14 +2,10 @@
 
 set -e
 
-VERSION=2.0.5
-SHA256=8bb29d84f06eb23c7ea4aa4794dbb248ede9fcb23b6989cbef81dc79352afc97
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
+source "${SCRIPT_DIR}/versions.sh"
 
-curl https://github.com/LuaJIT/LuaJIT/archive/v"$VERSION".tar.gz -sLo LuaJIT-"$VERSION".tar.gz \
-  && echo "$SHA256" LuaJIT-"$VERSION".tar.gz | sha256sum --check
-tar xf LuaJIT-"$VERSION".tar.gz
-cd LuaJIT-"$VERSION"
-
+stage_source LUAJIT
 
 # Fixup Makefile with things that cannot be set via env var.
 cat > ../luajit_make.diff << 'EOF'
